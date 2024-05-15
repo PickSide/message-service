@@ -8,7 +8,8 @@ pipeline {
         REPO_BASE = 'pickside-service'
         TAG = 'latest'
         VAULT_ADDRESS = credentials('vault-address')
-        VAULT_TOKEN = credentials('vault-token')
+        VAULT_TOKEN = credentials('vault-token') 
+        PLATFORM = 'linux/amd64'
     }
 
     stages {
@@ -22,19 +23,27 @@ pipeline {
         stage('Build and Push') {
             steps {
                 script {
-                    dir("../deploy-pickside-service/${SERVICE_NAME}") {
+                    dir("../deploy-${SERVICE_NAME}") {
                         sh """
                             docker build -t ${SERVICE_NAME}:${TAG} .
                             docker tag ${SERVICE_NAME}:${TAG} ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}
                             docker push ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}
-                            docker rmi ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}
-                            docker rmi ${SERVICE_NAME}:${TAG}
                         """
                     }
                 }
             }
         }
-
+        stage('Cleanup') {
+            steps {
+                script {
+                    sh """
+                        docker rmi ${DOCKERHUB_USERNAME}/${REPO_BASE}:${SERVICE_NAME}-${TAG} || true
+                        docker rmi ${SERVICE_NAME}:${TAG} || true
+                        docker system prune -f || true
+                    """
+                }
+            }
+        }
         stage('Restarting service') {
             steps {
                 script {
@@ -46,7 +55,7 @@ pipeline {
                             ssh -o StrictHostKeyChecking=no ubuntu@ec2-34-225-177-141.compute-1.amazonaws.com "
                                 docker ps -q --filter 'name=!vault' | xargs -r docker stop
 
-                                echo 'Pulling latest images for external service...';
+                                echo 'Pulling latest images for message service...';
                                 docker pull thenoobgrammer/pickside-service:${SERVICE_NAME}-latest;
 
                                 echo 'Removing old containers...';
