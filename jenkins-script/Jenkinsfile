@@ -23,11 +23,13 @@ pipeline {
             steps {
                 script {
                     dir("../deploy-pickside-service/${SERVICE_NAME}") {
-                        sh "docker build -t ${SERVICE_NAME}:${TAG} ."
-                        sh "docker tag ${SERVICE_NAME}:${TAG} ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}"
-                        sh "docker push ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}"
-                        sh "docker rmi ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}"
-                        sh "docker rmi ${SERVICE_NAME}:${TAG}"
+                        sh """
+                            docker build -t ${SERVICE_NAME}:${TAG} .
+                            docker tag ${SERVICE_NAME}:${TAG} ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}
+                            docker push ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}
+                            docker rmi ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}
+                            docker rmi ${SERVICE_NAME}:${TAG}
+                        """
                     }
                 }
             }
@@ -37,7 +39,7 @@ pipeline {
             steps {
                 script {
                     sshagent(['aws-ec2-ssh-key']) {
-                        sh '''
+                        sh """
                             echo "Checking loaded SSH keys..."
                             ssh-add -L
                             echo "Connecting to server..."
@@ -48,12 +50,12 @@ pipeline {
                                 docker pull thenoobgrammer/pickside-service:${SERVICE_NAME}-latest;
 
                                 echo 'Removing old containers...';
-                                docker rm -f pickside-msgs-prod;
+                                docker rm -f pickside-${SERVICE_NAME}-prod;
 
                                 echo 'Running new containers...';
                                 docker run -d -e VAULT_TOKEN=${VAULT_TOKEN} -e VAULT_ADDRESS=${VAULT_ADDRESS} --name pickside-${SERVICE_NAME}-prod -p 8083:8083 thenoobgrammer/pickside-service:${SERVICE_NAME}-latest;
                             "
-                        '''
+                        """
                     }
                 }
             }
