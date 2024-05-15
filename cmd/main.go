@@ -41,7 +41,7 @@ func main() {
 
 func PrintServiceInformation() {
 	log.Printf("Mode %s", os.Getenv("GIN_MODE"))
-	log.Printf("Service name: %s", os.Getenv("GIN_MODE"))
+	log.Printf("Service name: %s", os.Getenv("SERVICE_NAME"))
 	log.Printf("Version: %s", os.Getenv("SERVICE_VERSION"))
 }
 

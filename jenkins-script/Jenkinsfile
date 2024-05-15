@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+
+    environment {
+        SERVICE_NAME='message-service'
+        DOCKERHUB_CREDENTIALS = credentials('docker-creds')
+        DOCKERHUB_USERNAME = 'thenoobgrammer'
+        REPO_BASE = 'pickside-service'
+        TAG = 'latest'
+        VAULT_ADDRESS = credentials('vault-address')
+        VAULT_TOKEN = credentials('vault-token')
+    }
+
+    stages {
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin'
+                }
+            }
+        }
+        stage('Build and Push') {
+            steps {
+                script {
+                    dir("../deploy-pickside-service/${SERVICE_NAME}") {
+                        sh "docker build -t ${SERVICE_NAME}:${TAG} ."
+                        sh "docker tag ${SERVICE_NAME}:${TAG} ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}"
+                        sh "docker push ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}"
+                        sh "docker rmi ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}"
+                        sh "docker rmi ${SERVICE_NAME}:${TAG}"
+                    }
+                }
+            }
+        }
+
+        stage('Restarting service') {
+            steps {
+                script {
+                    sshagent(['aws-ec2-ssh-key']) {
+                        sh '''
+                            echo "Checking loaded SSH keys..."
+                            ssh-add -L
+                            echo "Connecting to server..."
+                            ssh -o StrictHostKeyChecking=no ubuntu@ec2-34-225-177-141.compute-1.amazonaws.com "
+                                docker ps -q --filter 'name=!vault' | xargs -r docker stop
+
+                                echo 'Pulling latest images for external service...';
+                                docker pull thenoobgrammer/pickside-service:${SERVICE_NAME}-latest;
+
+                                echo 'Removing old containers...';
+                                docker rm -f pickside-msgs-prod;
+
+                                echo 'Running new containers...';
+                                docker run -d -e VAULT_TOKEN=${VAULT_TOKEN} -e VAULT_ADDRESS=${VAULT_ADDRESS} --name pickside-${SERVICE_NAME}-prod -p 8083:8083 thenoobgrammer/pickside-service:${SERVICE_NAME}-latest;
+                            "
+                        '''
+                    }
+                }
+            }
+        }
+    }
+}
