@@ -25,8 +25,7 @@ pipeline {
                 script {
                     dir("../deploy-${SERVICE_NAME}") {
                         sh """
-                            docker build -t ${SERVICE_NAME}:${TAG} .
-                            docker tag ${SERVICE_NAME}:${TAG} ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}
+                            docker build -t ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG} .
                             docker push ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}
                         """
                     }
@@ -38,8 +37,6 @@ pipeline {
                 script {
                     sh """
                         docker rmi ${DOCKERHUB_USERNAME}/${REPO_BASE}:${SERVICE_NAME}-${TAG} || true
-                        docker rmi ${SERVICE_NAME}:${TAG} || true
-                        docker system prune -f || true
                     """
                 }
             }
