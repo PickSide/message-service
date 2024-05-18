@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"message-service/pkg/models"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +14,7 @@ func ValidateUser() gin.HandlerFunc {
 	return func(g *gin.Context) {
 		token := g.Query("token")
 
-		req, err := http.NewRequest("GET", "http://localhost:8083/auth-service/verify-token", nil)
+		req, err := http.NewRequest("GET", os.Getenv("AUTHENTICATION_SERVER_BASE_URL")+"/verify-token", nil)
 		if err != nil {
 			g.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error":   err.Error(),
