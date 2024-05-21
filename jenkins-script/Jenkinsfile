@@ -44,7 +44,7 @@ pipeline {
         stage('Restarting service') {
             steps {
                 script {
-                    sshagent(['aws-ec2-ssh-key']) {
+                    sshagent(['ec2-ssh-access-key']) {
                         sh """
                             echo "Checking loaded SSH keys..."
                             ssh-add -L
@@ -52,13 +52,13 @@ pipeline {
                             ssh -o StrictHostKeyChecking=no ubuntu@ec2-34-225-177-141.compute-1.amazonaws.com "
                                 docker ps -q --filter 'name=!vault' | xargs -r docker stop
 
-                                echo 'Pulling latest images for message service...';
+                                echo 'Pulling latest images for external service...';
                                 docker pull thenoobgrammer/pickside-service:${SERVICE_NAME}-latest;
 
-                                echo 'Removing old containers...';
+                                echo 'Removing old container...';
                                 docker rm -f pickside-${SERVICE_NAME}-prod;
 
-                                echo 'Running new containers...';
+                                echo 'Running new container...';
                                 docker run -d -e VAULT_TOKEN=${VAULT_TOKEN} -e VAULT_ADDRESS=${VAULT_ADDRESS} --name pickside-${SERVICE_NAME}-prod -p 8083:8083 thenoobgrammer/pickside-service:${SERVICE_NAME}-latest;
                             "
                         """
