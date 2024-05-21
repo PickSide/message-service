@@ -9,7 +9,7 @@ pipeline {
         TAG = 'latest'
         VAULT_ADDRESS = credentials('vault-address')
         VAULT_TOKEN = credentials('vault-token') 
-        SERVER_HOST = 'ec2-34-225-177-141.compute-1.amazonaws.com'
+        SERVER_HOST = 'ubuntu@ec2-34-225-177-141.compute-1.amazonaws.com'
         PLATFORM = 'linux/amd64'
     }
 
@@ -63,10 +63,10 @@ pipeline {
                                 docker run -d \
                                     -e VAULT_TOKEN=${VAULT_TOKEN} \
                                     -e VAULT_ADDRESS=${VAULT_ADDRESS} \
-                                    -e AUTHENTICATION_SERVICE_BASE_URL=https://pickside-service.com/message-service
+                                    -e AUTHENTICATION_SERVICE_BASE_URL=https://pickside-service.com/auth-service \
                                     --name pickside-${SERVICE_NAME}-prod \
                                     -p 8083:8083 \
-                                    ${DOCKERHUB_USERNAME}/${REPO_BASE}${SERVICE_NAME}-latest;
+                                    ${DOCKERHUB_USERNAME}/${REPO_BASE}:${SERVICE_NAME}-latest;
                             "
                         """
                     }
