@@ -1,7 +1,6 @@
 package vault
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -14,7 +13,7 @@ var (
 
 func init() {
 	client, err := vaultclient.NewClient(&vaultclient.Config{
-		Address: fmt.Sprintf("%s:8200", os.Getenv("VAULT_ADDRESS")),
+		Address: os.Getenv("VAULT_ADDRESS"),
 	})
 	if err != nil {
 		log.Fatalf("Error initializing Vault client: %s", err)
