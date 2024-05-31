@@ -2,7 +2,6 @@ package websocket
 
 import (
 	"fmt"
-	"log"
 	"message-service/pkg/models"
 	"net/http"
 
@@ -46,8 +45,6 @@ func HandleConnections(g *gin.Context) {
 
 		err := conn.ReadJSON(&socketMsg)
 		if err != nil {
-			log.Println(err)
-			fmt.Println(err)
 			delete(Clients, userClaims.UserID)
 			return
 		}

@@ -25,12 +25,10 @@ func main() {
 	g := gin.Default()
 	g.Use(cors.New(buildCors()))
 
-	as := g.Group("/message-service")
-
-	as.GET("/ws", middlewares.ValidateUser(), websocket.HandleConnections)
+	g.GET("/ws", middlewares.ValidateUser(), websocket.HandleConnections)
 
 	//Health
-	as.GET("/health", rest.GetHealth)
+	g.GET("/health", rest.GetHealth)
 
 	PrintServiceInformation()
 
