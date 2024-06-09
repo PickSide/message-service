@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  external-service:
+    image: thenoobgrammer/pickside-service:message-service-latest
+    container_name: msgservice
+    ports:
+      - "8083:8083"
+    networks:
+      - app-network
+    environment:
+      - VAULT_ADDRESS=https://vault.morpheglus.org
+      - VAULT_TOKEN=${VAULT_TOKEN}
