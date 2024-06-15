@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         SERVICE_NAME='message-service'
+        CONTAINER_NAME='msgsvc'
         DOCKERHUB_CREDENTIALS = credentials('docker-creds')
         DOCKERHUB_USERNAME = 'thenoobgrammer'
         REPO_BASE = 'pickside-service'
@@ -64,7 +65,7 @@ pipeline {
                                     -e VAULT_TOKEN=${VAULT_TOKEN} \
                                     -e VAULT_ADDRESS=${VAULT_ADDRESS} \
                                     -e AUTHENTICATION_SERVICE_BASE_URL=https://pickside-service.com/auth-service \
-                                    --name pickside-${SERVICE_NAME}-prod \
+                                    --name ${CONTAINER_NAME} \
                                     -p 8083:8083 \
                                     ${DOCKERHUB_USERNAME}/${REPO_BASE}:${SERVICE_NAME}-latest;
                             "
