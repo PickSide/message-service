@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   external-service:
     image: thenoobgrammer/pickside-service:message-service-latest
@@ -11,3 +9,6 @@ services:
     environment:
       - VAULT_ADDRESS=https://vault.morpheglus.org
       - VAULT_TOKEN=${VAULT_TOKEN}
+networks:
+  app-network:
+    driver: bridge
