@@ -15,7 +15,6 @@ type User struct {
 	Email                 string     `json:"email,omitempty"`
 	EmailVerified         bool       `json:"emailVerified,omitempty"`
 	ExternalID            *string    `json:"externalId,omitempty"`
-	Favorites             *string    `json:"favorites,omitempty"`
 	FullName              string     `json:"fullName,omitempty"`
 	InactiveDate          *time.Time `json:"inactiveDate,omitempty"`
 	IsInactive            bool       `json:"isInactive,omitempty"`
