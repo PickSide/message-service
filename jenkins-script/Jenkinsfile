@@ -58,12 +58,7 @@ pipeline {
                                 docker pull thenoobgrammer/pickside-service:${SERVICE_NAME}-latest;
 
                                 echo 'Removing old container...';
-                                if [ \$(docker ps -a -q -f name=${CONTAINER_NAME}) ]; then
-                                    echo "Removing existing container: ${CONTAINER_NAME}"
-                                    docker rm -f ${CONTAINER_NAME};
-                                else
-                                    echo "No existing container named ${CONTAINER_NAME} found"
-                                fi
+                                docker ps -aq --filter 'name=${CONTAINER_NAME}' | xargs -r docker rm -f
 
                                 echo 'Running new container...';
                                 docker run -d \
