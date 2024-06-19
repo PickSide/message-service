@@ -1,20 +1,20 @@
 package service
 
 import (
-	sqlutils "message-service/internal/sql"
+	"message-service/internal/database"
 	"message-service/pkg/models"
 )
 
 func GetParticipantsID(chatroomID string) (*[]string, error) {
-	return sqlutils.GetParticipantsID(chatroomID)
+	return database.GetParticipantsID(chatroomID)
 }
 func LoadChatrooms(participantID string) (*[]models.Chatroom, error) {
-	chatrooms, err := sqlutils.LoadChatroomsForUser(participantID)
+	chatrooms, err := database.LoadChatroomsForUser(participantID)
 	if err != nil {
 		return nil, err
 	}
 	for i, chatroom := range *chatrooms {
-		participants, err := sqlutils.GetChatroomParticipants(chatroom.IDString)
+		participants, err := database.GetChatroomParticipants(chatroom.IDString)
 		if err != nil {
 			return nil, err
 		}
@@ -23,11 +23,11 @@ func LoadChatrooms(participantID string) (*[]models.Chatroom, error) {
 	return chatrooms, nil
 }
 func LoadChatroomFromParticipants(participantIDs []string) (*models.Chatroom, error) {
-	chatroom, err := sqlutils.LoadChatroomByParticipantIDs(participantIDs)
+	chatroom, err := database.LoadChatroomByParticipantIDs(participantIDs)
 	if err != nil {
 		return nil, err
 	}
-	participants, err := sqlutils.GetChatroomParticipants(chatroom.IDString)
+	participants, err := database.GetChatroomParticipants(chatroom.IDString)
 	if err != nil {
 		return nil, err
 	}
@@ -36,11 +36,11 @@ func LoadChatroomFromParticipants(participantIDs []string) (*models.Chatroom, er
 	return chatroom, nil
 }
 func LoadChatroomFromID(chatroomID string) (*models.Chatroom, error) {
-	chatroom, err := sqlutils.LoadChatroomByID(chatroomID)
+	chatroom, err := database.LoadChatroomByID(chatroomID)
 	if err != nil {
 		return nil, err
 	}
-	participants, err := sqlutils.GetChatroomParticipants(chatroom.IDString)
+	participants, err := database.GetChatroomParticipants(chatroom.IDString)
 	if err != nil {
 		return nil, err
 	}
@@ -49,5 +49,5 @@ func LoadChatroomFromID(chatroomID string) (*models.Chatroom, error) {
 	return chatroom, nil
 }
 func InstantiateChatroom(participantIDs []string) (*string, error) {
-	return sqlutils.InstantiateChatroom(participantIDs)
+	return database.InstantiateChatroom(participantIDs)
 }

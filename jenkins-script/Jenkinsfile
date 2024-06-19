@@ -64,7 +64,7 @@ pipeline {
                                 docker run -d \
                                     -e VAULT_TOKEN=${VAULT_TOKEN} \
                                     -e VAULT_ADDRESS=${VAULT_ADDRESS} \
-                                    -e AUTHENTICATION_SERVICE_BASE_URL=https://pickside-service.com/auth-service \
+                                    -e AUTHSVC_URL=https://pickside-service.com/auth-service \
                                     --name ${CONTAINER_NAME} \
                                     -p 8083:8083 \
                                     ${DOCKERHUB_USERNAME}/${REPO_BASE}:${SERVICE_NAME}-latest;

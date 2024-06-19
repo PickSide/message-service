@@ -1,14 +1,15 @@
+networks:
+  pickside-network:
+    external: true
+
 services:
-  external-service:
+  msgsvc:
     image: thenoobgrammer/pickside-service:message-service-latest
     container_name: msgservice
     ports:
       - "8083:8083"
     networks:
-      - app-network
+      - pickside-network
     environment:
       - VAULT_ADDRESS=https://vault.morpheglus.org
       - VAULT_TOKEN=${VAULT_TOKEN}
-networks:
-  app-network:
-    driver: bridge
