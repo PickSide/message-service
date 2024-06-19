@@ -5,7 +5,7 @@ networks:
 services:
   msgsvc:
     image: thenoobgrammer/pickside-service:message-service-latest
-    container_name: msgservice
+    container_name: msgsvc
     ports:
       - "8083:8083"
     networks:
