@@ -16,11 +16,6 @@ WORKDIR /app
 
 COPY --from=builder /bin/message-service /app/
 
-ARG VERSION
-
-ENV SERVICE_NAME="message-service" \
-    SERVICE_VERSION=${VERSION}
-
 EXPOSE 8083
 
 CMD [ "/app/message-service" ]
