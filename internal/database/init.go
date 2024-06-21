@@ -13,7 +13,7 @@ var (
 	once   sync.Once
 )
 
-func Initialize(dsn string) {
+func InitializeDB(dsn string) {
 	once.Do(func() {
 		var err error
 		client, err = sql.Open("mysql", dsn)

@@ -2,16 +2,14 @@ pipeline {
     agent any
 
     environment {
-        SERVICE_NAME='message-service'
-        CONTAINER_NAME='msgsvc'
+        SERVICE_NAME='msgsvc'
         DOCKERHUB_CREDENTIALS = credentials('docker-creds')
         DOCKERHUB_USERNAME = 'thenoobgrammer'
-        REPO_BASE = 'pickside-service'
-        TAG = 'latest'
         VAULT_ADDRESS = credentials('vault-address')
         VAULT_TOKEN = credentials('vault-token') 
         SERVER_HOST = 'ubuntu@ec2-34-225-177-141.compute-1.amazonaws.com'
         PLATFORM = 'linux/amd64'
+        IMAGE = 'thenoobgrammer/msgsvc:latest'
     }
 
     stages {
@@ -25,10 +23,10 @@ pipeline {
         stage('Build and Push') {
             steps {
                 script {
-                    dir("../deploy-${SERVICE_NAME}") {
+                    dir("../deploy-message-service") {
                         sh """
-                            docker build -t ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG} .
-                            docker push ${DOCKERHUB_USERNAME}/pickside-service:${SERVICE_NAME}-${TAG}
+                            docker build -t ${IMAGE} .
+                            docker push ${IMAGE}
                         """
                     }
                 }
@@ -38,7 +36,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                        docker rmi ${DOCKERHUB_USERNAME}/${REPO_BASE}:${SERVICE_NAME}-${TAG} || true
+                        docker rmi ${IMAGE} || true
                     """
                 }
             }
@@ -55,19 +53,19 @@ pipeline {
                                 docker ps -q --filter 'name=!vault' | xargs -r docker stop
 
                                 echo 'Pulling latest images for external service...';
-                                docker pull thenoobgrammer/pickside-service:${SERVICE_NAME}-latest;
+                                docker pull thenoobgrammer/${SERVICE_NAME};
 
                                 echo 'Removing old container...';
-                                docker ps -aq --filter 'name=${CONTAINER_NAME}' | xargs -r docker rm -f
+                                docker ps -aq --filter 'name=${SERVICE_NAME}' | xargs -r docker rm -f
 
                                 echo 'Running new container...';
                                 docker run -d \
                                     -e VAULT_TOKEN=${VAULT_TOKEN} \
                                     -e VAULT_ADDRESS=${VAULT_ADDRESS} \
-                                    -e AUTHENTICATION_SERVICE_BASE_URL=https://pickside-service.com/auth-service \
-                                    --name ${CONTAINER_NAME} \
+                                    --name ${SERVICE_NAME} \
+                                    --network pickside-network \
                                     -p 8083:8083 \
-                                    ${DOCKERHUB_USERNAME}/${REPO_BASE}:${SERVICE_NAME}-latest;
+                                    ${IMAGE};
                             "
                         """
                     }

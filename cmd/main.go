@@ -2,12 +2,11 @@ package main
 
 import (
 	"log"
+	"message-service/internal/api"
 	"message-service/internal/database"
-	"message-service/internal/rest"
+	"message-service/internal/env"
 	"message-service/internal/vault"
 	"message-service/internal/websocket"
-	"message-service/middlewares"
-	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -15,20 +14,23 @@ import (
 )
 
 func main() {
-	dsn := vault.Envars["DSN"].(string)
-	database.Initialize(dsn)
+	// Initialize envs
+	env.InitalizeEnvs()
+
+	// Initialize database
+	database.InitializeDB(vault.Envars["DSN"].(string))
 	defer database.Close()
 
 	go websocket.HandleMessages()
 
-	gin.SetMode(os.Getenv("GIN_MODE"))
+	gin.SetMode(env.GIN_MODE)
 	g := gin.Default()
 	g.Use(cors.New(buildCors()))
 
-	g.GET("/ws", middlewares.ValidateUser(), websocket.HandleConnections)
+	g.GET("/ws", websocket.HandleConnections)
 
 	//Health
-	g.GET("/health", rest.GetHealth)
+	g.GET("/health", api.GetHealth)
 
 	PrintServiceInformation()
 
@@ -38,9 +40,9 @@ func main() {
 }
 
 func PrintServiceInformation() {
-	log.Printf("Mode %s", os.Getenv("GIN_MODE"))
-	log.Printf("Service name: %s", os.Getenv("SERVICE_NAME"))
-	log.Printf("Version: %s", os.Getenv("SERVICE_VERSION"))
+	log.Printf("Mode %s", env.GIN_MODE)
+	log.Printf("Service name: %s", env.SERVICE_NAME)
+	log.Printf("Version: %s", env.VERSION)
 }
 
 func buildCors() cors.Config {
