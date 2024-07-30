@@ -11,5 +11,5 @@ services:
     networks:
       - pickside-network
     environment:
-      - VAULT_ADDRESS=https://vault.morpheglus.org
+      - VAULT_ADDRESS=${VAULT_ADDRESS}
       - VAULT_TOKEN=${VAULT_TOKEN}
